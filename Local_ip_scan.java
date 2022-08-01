@@ -9,17 +9,24 @@ import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
 public class Local_ip_scan {
-
     public ArrayList<String> get_local_connect() throws IOException {
         ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", "netstat -ant");
         Process process = processBuilder.start();
         BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream(), "GBK"));
         String line;
         ArrayList<String> ipaddr = new ArrayList<>();
+        ArrayList<String> localip=new ArrayList<>();
+        localip.add("120");
+        localip.add("0");
+        localip.add("192");
+        localip.add("10");
         while ((line = br.readLine()) != null) {
             try {
                 String[] s = line.split("    ");
-                String s1 = s[2];
+                String s1 = s[3];
+                if(localip.contains(s1.split("\\.")[0])){
+                    break;
+                }
                 Boolean res = Pattern.matches("\\d.*:.*", s1);
                 if (res.equals(true)) {
                     String s2 = s1.split(":")[0];
@@ -30,6 +37,7 @@ public class Local_ip_scan {
         }
         return ipaddr;
     }
+    
     public Local_ip_scan() throws IOException {
         ArrayList<String> ipaddr = get_local_connect();
         LinkedHashSet<String> ip2 = new LinkedHashSet<>(ipaddr);
