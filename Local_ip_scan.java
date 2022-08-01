@@ -37,8 +37,6 @@ public class Local_ip_scan {
 
                 }catch (Exception e){
                 }
-
-
             }
             buffer.close();
         }catch (Exception e){
