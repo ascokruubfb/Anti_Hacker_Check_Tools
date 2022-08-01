@@ -10,33 +10,40 @@ import java.util.regex.Pattern;
 
 public class Local_ip_scan {
     public ArrayList<String> get_local_connect() throws IOException {
-        ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", "netstat -ant");
-        Process process = processBuilder.start();
-        BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream(), "GBK"));
-        String line;
         ArrayList<String> ipaddr = new ArrayList<>();
-        ArrayList<String> localip=new ArrayList<>();
-        localip.add("120");
+        ArrayList<String> localip = new ArrayList<>();
+        localip.add("127");
         localip.add("0");
         localip.add("192");
         localip.add("10");
-        while ((line = br.readLine()) != null) {
-            try {
-                String[] s = line.split("    ");
-                String s1 = s[3];
-                if(localip.contains(s1.split("\\.")[0])){
-                    break;
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", "netstat -ant");
+            Process process = processBuilder.start();
+            BufferedReader buffer = new BufferedReader(new InputStreamReader(process.getInputStream(),"GBK"));
+            String line = null;
+            while ((line = buffer.readLine()) != null) {
+                try {
+                    String[] s = line.split("    ");
+                    for (int i = 0; i < s.length; i++) {
+                        s[i]=s[i].replace(" ","").replace("ESTABLISHED","");
+                        if(!localip.contains(s[i].split("\\.")[0])){
+                            Boolean res = Pattern.matches("\\d.*:.*", s[i]);
+                            if (res.equals(true)) {
+                                String s2 = s[i].split(":")[0];
+                                ipaddr.add(s2+":"+s[i].split(":")[1]);
+                            }
+                        }
+                    }
+
+                }catch (Exception e){
                 }
-                Boolean res = Pattern.matches("\\d.*:.*", s1);
-                if (res.equals(true)) {
-                    String s2 = s1.split(":")[0];
-                    ipaddr.add(s2+":"+s1.split(":")[1]);
-                }
-            } catch (Exception e) {
+
+
             }
-        }
-        return ipaddr;
-    }
+            buffer.close();
+        }catch (Exception e){
+            e.printStackTrace();
+     }
     
     public Local_ip_scan() throws IOException {
         ArrayList<String> ipaddr = get_local_connect();
